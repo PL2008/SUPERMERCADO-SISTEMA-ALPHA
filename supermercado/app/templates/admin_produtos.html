@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Produtos - Administração{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-box me-2"></i>Gerenciar Produtos
+        </h1>
+        <button class="btn btn-primary" onclick="showAddProductModal()">
+            <i class="fas fa-plus me-2"></i>Novo Produto
+        </button>
+    </div>
+    
+    <!-- Search and Filters -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Buscar por nome ou código de barras...">
+                        <button class="btn btn-outline-secondary" type="button" onclick="searchProducts()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="categoryFilter">
+                        <option value="">Todas as categorias</option>
+                        <option value="Alimentação">Alimentação</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Limpeza">Limpeza</option>
+                        <option value="Higiene">Higiene</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-success w-100" onclick="loadProducts()">
+                        <i class="fas fa-sync-alt me-2"></i>Atualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Products Table -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-list me-2"></i>Lista de Produtos
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="productsTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Preço</th>
+                            <th>Estoque</th>
+                            <th>Código de Barras</th>
+                            <th>Categoria</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-spinner fa-spin fa-2x text-muted mb-3"></i>
+                                <p class="text-muted">Carregando produtos...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalTitle">
+                    <i class="fas fa-box me-2"></i>Novo Produto
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="productForm">
+                <div class="modal-body">
+                    <input type="hidden" id="productId" name="id">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="productName" class="form-label">Nome do Produto *</label>
+                                <input type="text" class="form-control" id="productName" name="nome" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="productPrice" class="form-label">Preço (R$) *</label>
+                                <input type="number" class="form-control" id="productPrice" name="preco" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="productStock" class="form-label">Estoque *</label>
+                                <input type="number" class="form-control" id="productStock" name="estoque" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="productCategory" class="form-label">Categoria *</label>
+                                <select class="form-select" id="productCategory" name="categoria" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Alimentação">Alimentação</option>
+                                    <option value="Bebidas">Bebidas</option>
+                                    <option value="Limpeza">Limpeza</option>
+                                    <option value="Higiene">Higiene</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="productBarcode" class="form-label">Código de Barras</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="productBarcode" name="codigo_barras">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="generateBarcode()">
+                                        <i class="fas fa-magic"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Deixe vazio para gerar automaticamente</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let products = [];
+let editingProductId = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadProducts();
+    
+    // Setup search
+    document.getElementById('searchInput').addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+            searchProducts();
+        }
+    });
+    
+    // Setup form submission
+    document.getElementById('productForm').addEventListener('submit', handleProductSubmit);
+});
+
+async function loadProducts() {
+    showLoading();
+    try {
+        const response = await fetch('/api/produtos');
+        products = await response.json();
+        renderProductsTable();
+    } catch (error) {
+        Swal.fire('Erro', 'Não foi possível carregar os produtos', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+function renderProductsTable() {
+    const tbody = document.getElementById('productsTableBody');
+    
+    if (products.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4">
+                    <i class="fas fa-box-open fa-2x text-muted mb-3"></i>
+                    <p class="text-muted">Nenhum produto encontrado</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = products.map(product => `
+        <tr>
+            <td>${product.id}</td>
+            <td>${product.nome}</td>
+            <td>R$ ${product.preco.toFixed(2)}</td>
+            <td>
+                <span class="badge ${product.estoque > 10 ? 'bg-success' : product.estoque > 0 ? 'bg-warning' : 'bg-danger'}">
+                    ${product.estoque}
+                </span>
+            </td>
+            <td><code>${product.codigo_barras}</code></td>
+            <td>${product.categoria}</td>
+            <td>
+                <button class="btn btn-sm btn-primary me-1" onclick="editProduct(${product.id})">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id}, '${product.nome}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function showAddProductModal() {
+    editingProductId = null;
+    document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-plus me-2"></i>Novo Produto';
+    document.getElementById('productForm').reset();
+    new bootstrap.Modal(document.getElementById('productModal')).show();
+}
+
+function editProduct(id) {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+    
+    editingProductId = id;
+    document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Editar Produto';
+    
+    // Fill form
+    document.getElementById('productId').value = product.id;
+    document.getElementById('productName').value = product.nome;
+    document.getElementById('productPrice').value = product.preco;
+    document.getElementById('productStock').value = product.estoque;
+    document.getElementById('productCategory').value = product.categoria;
+    document.getElementById('productBarcode').value = product.codigo_barras;
+    
+    new bootstrap.Modal(document.getElementById('productModal')).show();
+}
+
+async function handleProductSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    
+    showLoading();
+    
+    try {
+        let response;
+        if (editingProductId) {
+            // Update product
+            response = await fetch(`/api/produtos/${editingProductId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        } else {
+            // Create product
+            response = await fetch('/api/produtos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            Swal.fire('Sucesso!', 'Produto salvo com sucesso', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+            loadProducts();
+        } else {
+            Swal.fire('Erro', result.message, 'error');
+        }
+    } catch (error) {
+        Swal.fire('Erro', 'Não foi possível salvar o produto', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function deleteProduct(id, name) {
+    const result = await Swal.fire({
+        title: 'Confirmar exclusão',
+        text: `Tem certeza que deseja excluir o produto "${name}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    });
+    
+    if (result.isConfirmed) {
+        showLoading();
+        try {
+            const response = await fetch(`/api/produtos/${id}`, {
+                method: 'DELETE'
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                Swal.fire('Excluído!', 'Produto excluído com sucesso', 'success');
+                loadProducts();
+            } else {
+                Swal.fire('Erro', data.message, 'error');
+            }
+        } catch (error) {
+            Swal.fire('Erro', 'Não foi possível excluir o produto', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+}
+
+function generateBarcode() {
+    const barcode = '789' + Math.random().toString().substr(2, 10);
+    document.getElementById('productBarcode').value = barcode;
+}
+
+function searchProducts() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const category = document.getElementById('categoryFilter').value;
+    
+    let filtered = products;
+    
+    if (searchTerm) {
+        filtered = filtered.filter(product => 
+            product.nome.toLowerCase().includes(searchTerm) ||
+            product.codigo_barras.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    if (category) {
+        filtered = filtered.filter(product => product.categoria === category);
+    }
+    
+    const originalProducts = products;
+    products = filtered;
+    renderProductsTable();
+    products = originalProducts;
+}
+</script>
+{% endblock %}

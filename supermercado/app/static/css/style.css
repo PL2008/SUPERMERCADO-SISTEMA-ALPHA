@@ -1,0 +1,501 @@
+/* ==================== VARIÁVEIS CSS ==================== */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --border-radius: 8px;
+    --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --box-shadow-lg: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --transition: all 0.15s ease-in-out;
+}
+
+/* ==================== ESTILOS GLOBAIS ==================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f9;
+    color: var(--dark-color);
+    line-height: 1.6;
+}
+
+.main-content {
+    padding-top: 76px; /* Altura da navbar fixa */
+    min-height: 100vh;
+}
+
+/* ==================== PÁGINA DE LOGIN ==================== */
+.login-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: var(--box-shadow-lg);
+    text-align: center;
+    animation: slideInUp 0.6s ease-out;
+}
+
+.login-header {
+    margin-bottom: 30px;
+}
+
+.login-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, var(--primary-color), var(--info-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 2rem;
+    animation: pulse 2s infinite;
+}
+
+.login-form .form-control {
+    border-radius: var(--border-radius);
+    border: 1px solid #e0e6ed;
+    padding: 12px 16px;
+    font-size: 16px;
+    transition: var(--transition);
+}
+
+.login-form .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.login-btn {
+    border-radius: var(--border-radius);
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.demo-credentials {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    margin-top: 20px;
+    text-align: left;
+}
+
+.demo-user {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+}
+
+/* ==================== ANIMAÇÃO DE FUNDO DO LOGIN ==================== */
+.login-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.floating-icons {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.floating-icons i {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.1);
+    font-size: 2rem;
+    animation: float 6s ease-in-out infinite;
+}
+
+.floating-icons i:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+.floating-icons i:nth-child(2) { top: 60%; left: 20%; animation-delay: 1s; }
+.floating-icons i:nth-child(3) { top: 40%; left: 70%; animation-delay: 2s; }
+.floating-icons i:nth-child(4) { top: 80%; left: 80%; animation-delay: 3s; }
+.floating-icons i:nth-child(5) { top: 10%; left: 80%; animation-delay: 4s; }
+.floating-icons i:nth-child(6) { top: 70%; left: 60%; animation-delay: 5s; }
+
+/* ==================== CARDS E COMPONENTES ==================== */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: var(--box-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background: linear-gradient(45deg, var(--primary-color), #4dabf7);
+    color: white;
+    border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    border: none;
+}
+
+/* ==================== CARDS DE ESTATÍSTICAS ==================== */
+.border-left-primary {
+    border-left: 4px solid var(--primary-color) !important;
+}
+
+.border-left-success {
+    border-left: 4px solid var(--success-color) !important;
+}
+
+.border-left-info {
+    border-left: 4px solid var(--info-color) !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid var(--warning-color) !important;
+}
+
+/* ==================== BOTÕES DE AÇÃO ==================== */
+.action-btn {
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    text-align: center;
+    padding: 20px;
+    height: auto;
+    white-space: normal;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.action-btn i {
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* ==================== TABELAS ==================== */
+.table {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+}
+
+.table th {
+    background: var(--light-color);
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* ==================== NAVBAR ==================== */
+.navbar {
+    box-shadow: var(--box-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* ==================== FORMULÁRIOS ==================== */
+.form-control, .form-select {
+    border-radius: var(--border-radius);
+    border: 1px solid #e0e6ed;
+    transition: var(--transition);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* ==================== MODAIS ==================== */
+.modal-content {
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--box-shadow-lg);
+}
+
+.modal-header {
+    background: linear-gradient(45deg, var(--primary-color), #4dabf7);
+    color: white;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    border: none;
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+/* ==================== PDV ESPECÍFICO ==================== */
+#barcodeInput {
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.summary-item {
+    background: rgba(25, 135, 84, 0.05);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* ==================== TIMELINE ==================== */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -35px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: -31px;
+    top: 17px;
+    width: 2px;
+    height: calc(100% + 8px);
+    background: #e9ecef;
+}
+
+/* ==================== LOADING SPINNER ==================== */
+.loading-spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* ==================== BADGES ==================== */
+.badge {
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 60px;
+    }
+    
+    .login-card {
+        margin: 20px;
+        padding: 30px 20px;
+    }
+    
+    .action-btn {
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    .summary-item {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding: 10px;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .btn-lg {
+        padding: 10px 16px;
+        font-size: 1rem;
+    }
+}
+
+/* ==================== ANIMAÇÕES ==================== */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ==================== UTILITÁRIOS ==================== */
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+
+.font-weight-bold {
+    font-weight: 700 !important;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.shadow {
+    box-shadow: var(--box-shadow) !important;
+}
+
+.shadow-lg {
+    box-shadow: var(--box-shadow-lg) !important;
+}
+
+/* ==================== ESTADOS DE HOVER E FOCUS ==================== */
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-lg);
+}
+
+/* ==================== SCROLLBAR PERSONALIZADA ==================== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* ==================== DARK MODE (FUTURO) ==================== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --light-color: #343a40;
+        --dark-color: #f8f9fa;
+    }
+    
+    body {
+        background-color: #1a1a1a;
+        color: var(--dark-color);
+    }
+    
+    .card {
+        background-color: #2d3748;
+        color: var(--dark-color);
+    }
+    
+    .table {
+        color: var(--dark-color);
+    }
+    
+    .table th {
+        background-color: #4a5568;
+    }
+}

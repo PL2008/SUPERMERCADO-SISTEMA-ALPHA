@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Administração{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard Administrativo
+        </h1>
+        <div class="text-muted">
+            <i class="fas fa-calendar me-1"></i>
+            <span id="currentDate"></span>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total de Produtos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_produtos }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-box fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Vendas Hoje
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ vendas_hoje }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Usuários Ativos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_usuarios }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Status Sistema
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <span class="badge bg-success">Online</span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-server fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt me-2"></i>Ações Rápidas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{{ url_for('admin_produtos') }}" class="btn btn-primary btn-lg w-100 action-btn">
+                                <i class="fas fa-box fa-2x mb-2"></i><br>
+                                Gerenciar Produtos
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{{ url_for('admin_usuarios') }}" class="btn btn-success btn-lg w-100 action-btn">
+                                <i class="fas fa-users fa-2x mb-2"></i><br>
+                                Gerenciar Usuários
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{{ url_for('pdv') }}" class="btn btn-info btn-lg w-100 action-btn">
+                                <i class="fas fa-cash-register fa-2x mb-2"></i><br>
+                                Abrir PDV
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <button class="btn btn-warning btn-lg w-100 action-btn" onclick="showReports()">
+                                <i class="fas fa-chart-bar fa-2x mb-2"></i><br>
+                                Relatórios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-2"></i>Atividade Recente
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div id="recentActivity">
+                        <div class="text-center py-4">
+                            <i class="fas fa-spinner fa-spin fa-2x text-muted mb-3"></i>
+                            <p class="text-muted">Carregando atividades recentes...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update current date
+    const currentDate = new Date().toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    document.getElementById('currentDate').textContent = currentDate;
+    
+    // Load recent activity (simulated)
+    setTimeout(() => {
+        const recentActivity = document.getElementById('recentActivity');
+        recentActivity.innerHTML = `
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-success"></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Sistema iniciado</h6>
+                        <p class="text-muted small mb-0">Há 2 horas</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-info"></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Usuário admin conectado</h6>
+                        <p class="text-muted small mb-0">Há 1 hora</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-primary"></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">Dashboard acessado</h6>
+                        <p class="text-muted small mb-0">Agora</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }, 1000);
+});
+
+function showReports() {
+    Swal.fire({
+        title: 'Relatórios',
+        text: 'Funcionalidade de relatórios será implementada em breve!',
+        icon: 'info',
+        confirmButtonText: 'OK'
+    });
+}
+</script>
+{% endblock %}

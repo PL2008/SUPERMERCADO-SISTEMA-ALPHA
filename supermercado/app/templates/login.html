@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Sistema Supermercado{% endblock %}
+
+{% block body_class %}login-page{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <h2>Sistema Supermercado</h2>
+            <p class="text-muted">Faça login para continuar</p>
+        </div>
+        
+        <form id="loginForm" class="login-form">
+            <div class="mb-3">
+                <label for="login" class="form-label">
+                    <i class="fas fa-user me-2"></i>Usuário
+                </label>
+                <input type="text" class="form-control" id="login" name="login" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="senha" class="form-label">
+                    <i class="fas fa-lock me-2"></i>Senha
+                </label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="senha" name="senha" required>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 login-btn">
+                <i class="fas fa-sign-in-alt me-2"></i>Entrar
+            </button>
+        </form>
+        
+        <div class="login-footer">
+            <hr>
+            <div class="demo-credentials">
+                <h6>Credenciais de Demonstração:</h6>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="demo-user">
+                            <strong>Admin:</strong><br>
+                            <small>Login: admin</small><br>
+                            <small>Senha: admin123</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="demo-user">
+                            <strong>Operador:</strong><br>
+                            <small>Login: operador</small><br>
+                            <small>Senha: op123</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Background Animation -->
+<div class="login-background">
+    <div class="floating-icons">
+        <i class="fas fa-shopping-cart"></i>
+        <i class="fas fa-barcode"></i>
+        <i class="fas fa-cash-register"></i>
+        <i class="fas fa-receipt"></i>
+        <i class="fas fa-credit-card"></i>
+        <i class="fas fa-store"></i>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const togglePassword = document.getElementById('togglePassword');
+    const senhaInput = document.getElementById('senha');
+    
+    // Toggle password visibility
+    togglePassword.addEventListener('click', function() {
+        const type = senhaInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        senhaInput.setAttribute('type', type);
+        
+        const icon = this.querySelector('i');
+        icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+    
+    // Handle form submission
+    loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+        
+        // Show loading
+        showLoading();
+        
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Login realizado com sucesso!',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    window.location.href = result.redirect;
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro no login',
+                    text: result.message
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro de conexão',
+                text: 'Não foi possível conectar ao servidor'
+            });
+        } finally {
+            hideLoading();
+        }
+    });
+    
+    // Focus on first input
+    document.getElementById('login').focus();
+});
+</script>
+{% endblock %}
