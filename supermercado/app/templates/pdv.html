@@ -1,0 +1,512 @@
+{% extends "base.html" %}
+
+{% block title %}PDV - Ponto de Venda{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Product Search and Barcode Scanner -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-barcode me-2"></i>Leitor de Código de Barras
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="input-group input-group-lg">
+                                <input type="text" class="form-control" id="barcodeInput" 
+                                       placeholder="Digite ou escaneie o código de barras..." autofocus>
+                                <button class="btn btn-primary" type="button" onclick="searchProduct()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-success btn-lg w-100" onclick="showProductSearch()">
+                                <i class="fas fa-list me-2"></i>Buscar Produto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shopping Cart -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-shopping-cart me-2"></i>Carrinho de Compras
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="cartTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Preço Unit.</th>
+                                    <th>Qtd</th>
+                                    <th>Subtotal</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartTableBody">
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                                        <p>Carrinho vazio. Escaneie um produto para começar.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary and Actions -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-calculator me-2"></i>Resumo da Venda
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="summary-item">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>Itens:</span>
+                            <span id="totalItems" class="fw-bold">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>Subtotal:</span>
+                            <span id="subtotal" class="fw-bold">R$ 0,00</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">Total:</h5>
+                            <h4 class="mb-0 text-success" id="totalAmount">R$ 0,00</h4>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success btn-lg" onclick="finalizeSale()" id="finalizeSaleBtn" disabled>
+                            <i class="fas fa-check me-2"></i>Finalizar Compra
+                        </button>
+                        <button class="btn btn-warning" onclick="clearCart()">
+                            <i class="fas fa-trash me-2"></i>Limpar Carrinho
+                        </button>
+                        <button class="btn btn-danger" onclick="cancelSale()">
+                            <i class="fas fa-times me-2"></i>Cancelar Venda
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-bolt me-2"></i>Ações Rápidas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-info" onclick="showLastSales()">
+                            <i class="fas fa-history me-2"></i>Vendas Recentes
+                        </button>
+                        {% if current_user.is_admin() %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-cog me-2"></i>Administração
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Search Modal -->
+<div class="modal fade" id="productSearchModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-search me-2"></i>Buscar Produto
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="productSearchInput" 
+                           placeholder="Digite o nome do produto...">
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nome</th>
+                                <th>Preço</th>
+                                <th>Estoque</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productSearchResults">
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    Digite para buscar produtos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quantity Modal -->
+<div class="modal fade" id="quantityModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quantidade</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="quantityInput" class="form-label">Quantidade:</label>
+                    <input type="number" class="form-control" id="quantityInput" min="1" value="1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmQuantity()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let cart = [];
+let currentProduct = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup barcode input
+    const barcodeInput = document.getElementById('barcodeInput');
+    barcodeInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchProduct();
+        }
+    });
+    
+    // Setup product search
+    const productSearchInput = document.getElementById('productSearchInput');
+    productSearchInput.addEventListener('input', debounce(searchProductsInModal, 300));
+    
+    // Focus on barcode input
+    barcodeInput.focus();
+});
+
+async function searchProduct() {
+    const barcode = document.getElementById('barcodeInput').value.trim();
+    if (!barcode) return;
+    
+    showLoading();
+    
+    try {
+        const response = await fetch(`/api/produto/${barcode}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            addToCart(result.produto);
+            document.getElementById('barcodeInput').value = '';
+        } else {
+            Swal.fire('Produto não encontrado', `Código: ${barcode}`, 'warning');
+        }
+    } catch (error) {
+        Swal.fire('Erro', 'Não foi possível buscar o produto', 'error');
+    } finally {
+        hideLoading();
+        document.getElementById('barcodeInput').focus();
+    }
+}
+
+function addToCart(product, quantity = 1) {
+    // Check if product already in cart
+    const existingItem = cart.find(item => item.id === product.id);
+    
+    if (existingItem) {
+        existingItem.quantidade += quantity;
+        existingItem.subtotal = existingItem.quantidade * existingItem.preco;
+    } else {
+        cart.push({
+            id: product.id,
+            nome: product.nome,
+            preco: product.preco,
+            quantidade: quantity,
+            subtotal: product.preco * quantity
+        });
+    }
+    
+    updateCartDisplay();
+    updateSummary();
+}
+
+function removeFromCart(productId) {
+    cart = cart.filter(item => item.id !== productId);
+    updateCartDisplay();
+    updateSummary();
+}
+
+function updateQuantity(productId, newQuantity) {
+    const item = cart.find(item => item.id === productId);
+    if (item) {
+        item.quantidade = newQuantity;
+        item.subtotal = item.preco * newQuantity;
+        updateCartDisplay();
+        updateSummary();
+    }
+}
+
+function updateCartDisplay() {
+    const tbody = document.getElementById('cartTableBody');
+    
+    if (cart.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center py-4 text-muted">
+                    <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                    <p>Carrinho vazio. Escaneie um produto para começar.</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = cart.map(item => `
+        <tr>
+            <td>${item.nome}</td>
+            <td>R$ ${item.preco.toFixed(2)}</td>
+            <td>
+                <div class="input-group input-group-sm" style="width: 100px;">
+                    <button class="btn btn-outline-secondary" onclick="updateQuantity(${item.id}, ${item.quantidade - 1})" ${item.quantidade <= 1 ? 'disabled' : ''}>-</button>
+                    <input type="text" class="form-control text-center" value="${item.quantidade}" readonly>
+                    <button class="btn btn-outline-secondary" onclick="updateQuantity(${item.id}, ${item.quantidade + 1})">+</button>
+                </div>
+            </td>
+            <td class="fw-bold">R$ ${item.subtotal.toFixed(2)}</td>
+            <td>
+                <button class="btn btn-sm btn-danger" onclick="removeFromCart(${item.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateSummary() {
+    const totalItems = cart.reduce((sum, item) => sum + item.quantidade, 0);
+    const totalAmount = cart.reduce((sum, item) => sum + item.subtotal, 0);
+    
+    document.getElementById('totalItems').textContent = totalItems;
+    document.getElementById('subtotal').textContent = `R$ ${totalAmount.toFixed(2)}`;
+    document.getElementById('totalAmount').textContent = `R$ ${totalAmount.toFixed(2)}`;
+    
+    // Enable/disable finalize button
+    const finalizeBtn = document.getElementById('finalizeSaleBtn');
+    finalizeBtn.disabled = cart.length === 0;
+}
+
+async function finalizeSale() {
+    if (cart.length === 0) return;
+    
+    const result = await Swal.fire({
+        title: 'Finalizar Venda',
+        text: `Total: R$ ${cart.reduce((sum, item) => sum + item.subtotal, 0).toFixed(2)}`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar Venda',
+        cancelButtonText: 'Cancelar'
+    });
+    
+    if (result.isConfirmed) {
+        showLoading();
+        
+        try {
+            const response = await fetch('/api/venda', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    itens: cart,
+                    total: cart.reduce((sum, item) => sum + item.subtotal, 0)
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                await Swal.fire({
+                    title: 'Venda Finalizada!',
+                    text: `Venda #${data.venda_id} realizada com sucesso`,
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonText: 'Gerar Nota Fiscal',
+                    cancelButtonText: 'Nova Venda'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.open(`/api/nota-fiscal/${data.venda_id}`, '_blank');
+                    }
+                });
+                
+                clearCart();
+            } else {
+                Swal.fire('Erro', data.message, 'error');
+            }
+        } catch (error) {
+            Swal.fire('Erro', 'Não foi possível finalizar a venda', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+}
+
+function clearCart() {
+    cart = [];
+    updateCartDisplay();
+    updateSummary();
+    document.getElementById('barcodeInput').focus();
+}
+
+async function cancelSale() {
+    if (cart.length === 0) return;
+    
+    const result = await Swal.fire({
+        title: 'Cancelar Venda',
+        text: 'Tem certeza que deseja cancelar a venda atual?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, cancelar',
+        cancelButtonText: 'Não'
+    });
+    
+    if (result.isConfirmed) {
+        clearCart();
+        Swal.fire('Cancelado', 'Venda cancelada com sucesso', 'info');
+    }
+}
+
+function showProductSearch() {
+    new bootstrap.Modal(document.getElementById('productSearchModal')).show();
+    setTimeout(() => {
+        document.getElementById('productSearchInput').focus();
+    }, 500);
+}
+
+async function searchProductsInModal() {
+    const searchTerm = document.getElementById('productSearchInput').value.trim();
+    const resultsBody = document.getElementById('productSearchResults');
+    
+    if (!searchTerm) {
+        resultsBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center py-4 text-muted">
+                    Digite para buscar produtos...
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/produtos?busca=${encodeURIComponent(searchTerm)}`);
+        const products = await response.json();
+        
+        if (products.length === 0) {
+            resultsBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">
+                        Nenhum produto encontrado
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        resultsBody.innerHTML = products.map(product => `
+            <tr>
+                <td>${product.nome}</td>
+                <td>R$ ${product.preco.toFixed(2)}</td>
+                <td>
+                    <span class="badge ${product.estoque > 10 ? 'bg-success' : product.estoque > 0 ? 'bg-warning' : 'bg-danger'}">
+                        ${product.estoque}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="selectProduct(${JSON.stringify(product).replace(/"/g, '&quot;')})" ${product.estoque <= 0 ? 'disabled' : ''}>
+                        <i class="fas fa-plus"></i> Adicionar
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        resultsBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center py-4 text-danger">
+                    Erro ao buscar produtos
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function selectProduct(product) {
+    currentProduct = product;
+    bootstrap.Modal.getInstance(document.getElementById('productSearchModal')).hide();
+    
+    // Show quantity modal
+    document.getElementById('quantityInput').value = 1;
+    new bootstrap.Modal(document.getElementById('quantityModal')).show();
+    setTimeout(() => {
+        document.getElementById('quantityInput').focus();
+        document.getElementById('quantityInput').select();
+    }, 500);
+}
+
+function confirmQuantity() {
+    const quantity = parseInt(document.getElementById('quantityInput').value);
+    if (quantity > 0 && currentProduct) {
+        addToCart(currentProduct, quantity);
+        bootstrap.Modal.getInstance(document.getElementById('quantityModal')).hide();
+        currentProduct = null;
+    }
+}
+
+function showLastSales() {
+    Swal.fire({
+        title: 'Vendas Recentes',
+        text: 'Funcionalidade será implementada em breve!',
+        icon: 'info'
+    });
+}
+
+// Utility function for debouncing
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+</script>
+{% endblock %}
